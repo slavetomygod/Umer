@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Item - FS Traders</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: white;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* ====== MENU ====== */
+    #menuToggle {
+      font-size: 28px;
+      cursor: pointer;
+      color: teal;
+      background: none;
+      border: none;
+      margin: 15px;
+      position: relative;
+      z-index: 5;
+    }
+    #sidebar {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to bottom, #20c997, #0d9488);
+      overflow-x: hidden;
+      transition: 0.4s;
+      padding-top: 60px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    #sidebar li {
+      padding: 12px 20px;
+    }
+    #sidebar a {
+      text-decoration: none;
+      font-size: 18px;
+      color: white;
+      display: block;
+      transition: 0.3s;
+    }
+    #sidebar a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      z-index: 9;
+    }
+
+    /* ====== TITLE ====== */
+    .title {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: bold;
+      position: relative;
+      z-index: 2;
+    }
+    .title .fs {
+      font-size: 60px;
+      color: teal;
+      text-shadow: 2px 2px 8px rgba(0,128,128,0.4);
+      line-height: 1;
+    }
+    .title .traders {
+      font-size: 35px;
+      color: #0d9488;
+      text-shadow: 1px 1px 5px rgba(0,128,128,0.3);
+      line-height: 1.2;
+    }
+
+    /* ====== FORM ====== */
+    .form-container {
+      width: 90%;
+      max-width: 450px;
+      margin: 20px auto;
+      padding: 25px;
+      background: rgba(0,200,170,0.05);
+      border-radius: 15px;
+      box-shadow: 0 2px 8px rgba(0,128,128,0.25);
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .form-container label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+      color: teal;
+      text-align: left;
+    }
+    .form-container input[type="text"],
+    .form-container input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid teal;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    /* ====== Upload Box ====== */
+    .upload-box {
+      border: 2px dashed teal;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+      background: #f8fdfd;
+    }
+    .upload-box:hover {
+      background: #e6fdf9;
+    }
+    .upload-box p {
+      margin: 0;
+      color: teal;
+      font-weight: bold;
+    }
+    .upload-box input {
+      display: none;
+    }
+
+    #preview {
+      display: none;
+      margin-top: 12px;
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,128,128,0.25);
+    }
+
+    .form-container button {
+      margin-top: 15px;
+      padding: 12px;
+      width: 100%;
+      background: teal;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .form-container button:hover {
+      background: #0d9488;
+    }
+
+    .success {
+      text-align: center;
+      margin-top: 12px;
+      color: green;
+      font-weight: bold;
+      display: none;
+    }
+
+    /* ====== Waves ====== */
+    .wave-container {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .wave {
+      position: absolute;
+      width: 200%;
+      height: 100%;
+      background: rgba(0, 200, 170, 0.3);
+      border-radius: 100% 50%;
+      animation: wave 8s infinite linear alternate-reverse;
+      animation-delay: 3ms;
+    }
+    .wave:nth-child(2) {
+      bottom: 0;
+      background: rgba(0, 200, 170, 0.5);
+      animation-duration: 12s;
+    }
+    .wave:nth-child(3) {
+      bottom: 0;
+      background: rgba(0, 200, 170, 0.7);
+      animation-duration: 16s;
+    }
+    @keyframes wave {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu -->
+  <button id="menuToggle">☰</button>
+  <nav id="sidebar">
+    <ul>
+      <li><a href="homepage.html">🏠 Home</a></li>
+      <li><a href="itemsinfo.html">📋 Items Info</a></li>
+      <li><a href="setquantity.html">✏️ Set Quantity</a></li>
+    </ul>
+  </nav>
+  <div id="overlay"></div>
+
+  <!-- Title -->
+  <div class="title">
+    <div class="fs">FS</div>
+    <div class="traders">Traders</div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container">
+    <label for="name">Item Name</label>
+    <input type="text" id="name" placeholder="Enter item name" required>
+
+    <label for="price">Item Price</label>
+    <input type="number" id="price" placeholder="Enter item price" required>
+
+    <label>Upload Image</label>
+    <div class="upload-box" id="uploadBox">
+      <p>📤 Drag & Drop or Click to Upload</p>
+      <input type="file" id="image" accept="image/*">
+    </div>
+    <img id="preview" alt="Image Preview">
+
+    <button onclick="addItem()">Add Item</button>
+    <p id="successMsg" class="success">✅ Item added successfully!</p>
+  </div>
+
+  <!-- Waves -->
+  <div class="wave-container">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
+  <script src="localstorage.js"></script>
+  <script>
+    // ===== Menu Toggle =====
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    menuToggle.addEventListener("click", () => {
+      sidebar.style.width = "250px";
+      overlay.style.display = "block";
+    });
+    overlay.addEventListener("click", () => {
+      sidebar.style.width = "0";
+      overlay.style.display = "none";
+    });
+
+    // ===== Upload + Preview =====
+    const uploadBox = document.getElementById("uploadBox");
+    const fileInput = document.getElementById("image");
+    const preview = document.getElementById("preview");
+
+    uploadBox.addEventListener("click", () => fileInput.click());
+    uploadBox.addEventListener("dragover", e => {
+      e.preventDefault();
+      uploadBox.style.background = "#e6fdf9";
+    });
+    uploadBox.addEventListener("dragleave", () => {
+      uploadBox.style.background = "#f8fdfd";
+    });
+    uploadBox.addEventListener("drop", e => {
+      e.preventDefault();
+      fileInput.files = e.dataTransfer.files;
+      showPreview(fileInput.files[0]);
+    });
+    fileInput.addEventListener("change", e => {
+      showPreview(e.target.files[0]);
+    });
+
+    function showPreview(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ===== Add Item =====
+    function addItem() {
+      const name = document.getElementById("name").value.trim();
+      const price = parseFloat(document.getElementById("price").value.trim());
+      const imgSrc = preview.src || "";
+
+      if (!name || isNaN(price)) {
+        alert("Please enter valid name and price!");
+        return;
+      }
+
+      let items = JSON.parse(localStorage.getItem("items")) || [];
+
+      items.push({
+        name,
+        price,
+        quantity: 0,
+        image: imgSrc
+      });
+
+      localStorage.setItem("items", JSON.stringify(items));
+
+      document.getElementById("successMsg").style.display = "block";
+      document.getElementById("name").value = "";
+      document.getElementById("price").value = "";
+      fileInput.value = "";
+      preview.style.display = "none";
+    }
+  </script>
+</body>
+</html>
+

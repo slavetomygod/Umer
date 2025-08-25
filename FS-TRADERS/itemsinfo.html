@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Items Info - FS Traders</title>
+  <style>
+    body{
+      margin:0; font-family:Arial,sans-serif; background:#fff; color:#033; overflow-x:hidden;
+    }
+
+    /* ===== MENU (same pattern everywhere) ===== */
+  #menuToggle {
+      font-size: 28px;
+      cursor: pointer;
+      color: teal;
+      background: none;
+      border: none;
+      margin: 15px;
+      position: relative;
+      z-index: 5;
+    }
+    #sidebar {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to bottom, #20c997, #0d9488);
+      overflow-x: hidden;
+      transition: 0.4s;
+      padding-top: 60px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    #sidebar li {
+      padding: 12px 20px;
+    }
+    #sidebar a {
+      text-decoration: none;
+      font-size: 18px;
+      color: white;
+      display: block;
+      transition: 0.3s;
+    }
+    #sidebar a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      z-index: 9;
+    }
+    
+    /* ===== TITLE ===== */
+    .title{
+      text-align:center; margin:10px 0 0; font-weight:bold; position:relative; z-index:2;
+    }
+    .title .fs{
+      font-size:60px; color:teal; text-shadow:2px 2px 8px rgba(0,128,128,.4); line-height:1;
+    }
+    .title .traders{
+      font-size:35px; color:#0d9488; text-shadow:1px 1px 5px rgba(0,128,128,.3); line-height:1.2;
+    }
+
+    /* ===== SEARCH ===== */
+    .search-bar{ display:flex; justify-content:center; margin:14px 0; position:relative; z-index:2; }
+    .search-bar input{
+      width:90%; max-width:700px; padding:10px 12px; font-size:16px; border:2px solid teal; border-radius:10px;
+    }
+
+    /* ===== LIST ===== */
+    .items-list{
+      width:92%; max-width:1000px; margin:16px auto 80px; position:relative; z-index:2;
+    }
+
+    .item{
+      position:relative; margin:18px 0; border-radius:16px; overflow:hidden;
+      box-shadow:0 3px 10px rgba(0,128,128,.18);
+    }
+
+    /* Per-item waves background */
+    .item .wave-container{
+      position:absolute; inset:0; width:200%; height:100%; z-index:0; pointer-events:none;
+    }
+    .item .wave{
+      position:absolute; width:200%; height:100%; background:rgba(0,200,170,.22);
+      border-radius:100% 50%; animation:wave 8s linear infinite alternate-reverse;
+      animation-delay: 3ms;
+    }
+    .item .wave:nth-child(2){ background:rgba(0,200,170,.32); animation-duration:12s; }
+    .item .wave:nth-child(3){ background:rgba(0,200,170,.44); animation-duration:16s; }
+
+    @keyframes wave{ 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+
+    /* Row content */
+    .item-content{
+      position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:16px 16px;
+      /* space on right so hover image can appear without covering text */
+      padding-right:184px;
+      font-weight:600;
+    }
+    .col{ flex:1; text-align:center; }
+    .col.name{ text-align:left; }
+    .col.qty{ text-align:right; }
+
+    /* Hover image preview (only if image exists) */
+    .img-preview{
+      position:absolute; right:12px; top:50%; transform:translateY(-50%) scale(.96);
+      width:150px; height:150px; background:#fff; border-radius:14px; padding:6px;
+      box-shadow:0 8px 20px rgba(0,0,0,.18);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; visibility:hidden; transition:opacity .22s ease, transform .22s ease;
+      pointer-events:none; /* ignore pointer so hover stays on item */
+    }
+    .img-preview img{
+      max-width:100%; max-height:100%; border-radius:10px; display:block;
+    }
+    .item.has-image:hover .img-preview{
+      opacity:1; visibility:visible; transform:translateY(-50%) scale(1);
+    }
+
+    .no-items{ text-align:center; color:#c00; font-weight:bold; margin-top:24px; }
+
+    /* ===== BIG PAGE WAVES ===== */
+    .wave-container-bg{
+      position:fixed; left:0; right:0; bottom:0; height:220px; overflow:hidden; z-index:1;
+    }
+    .wave-bg{
+      position:absolute; width:200%; height:100%; background:rgba(0,200,170,.3);
+      border-radius:100% 50%; animation:wave 8s linear infinite alternate-reverse;animation-delay: 3ms;
+    }
+    .wave-bg:nth-child(2){ background:rgba(0,200,170,.5); animation-duration:12s; }
+    .wave-bg:nth-child(3){ background:rgba(0,200,170,.7); animation-duration:16s; }
+    
+  </style>
+</head>
+<body>
+
+  <!-- Menu -->
+  <button id="menuToggle">☰</button>
+  <nav id="sidebar">
+    <ul>
+      <li><a href="homepage.html">🏠 Home</a></li>
+      
+      <li><a href="setquantity.html">✏️ Set Quantity</a></li>
+      <li><a href="newitem.html">➕ New Item</a></li>
+    </ul>
+  </nav>
+  <div id="overlay"></div>
+
+  <!-- Title -->
+  <div class="title">
+    <div class="fs">FS</div>
+    <div class="traders">Traders</div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input id="searchInput" type="text" placeholder="Search item...">
+  </div>
+
+  <!-- List -->
+  <div id="itemsList" class="items-list"></div>
+
+  <!-- Big background waves -->
+  <div class="wave-container-bg">
+    <div class="wave-bg"></div>
+    <div class="wave-bg"></div>
+    <div class="wave-bg"></div>
+  </div>
+
+  <script>
+    /* ===== MENU TOGGLE ===== */
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    menuToggle.addEventListener("click", ()=>{
+      sidebar.style.width = "250px";
+      overlay.style.display = "block";
+    });
+    overlay.addEventListener("click", ()=>{
+      sidebar.style.width = "0";
+      overlay.style.display = "none";
+    });
+
+    /* ===== RENDER ITEMS (with hover image) ===== */
+    function renderItemsInfo(filter = ""){
+      const list = document.getElementById("itemsList");
+      list.innerHTML = "";
+      let items = JSON.parse(localStorage.getItem("items")) || [];
+
+      const q = filter.trim().toLowerCase();
+      if(q){
+        items = items.filter(it => (it.name||"").toLowerCase().includes(q));
+      }
+
+      if(items.length === 0){
+        list.innerHTML = '<div class="no-items">No items found.</div>';
+        return;
+      }
+
+      items.forEach((item, idx)=>{
+        const hasImg = !!(item.image && item.image.length > 0);
+
+        const wrap = document.createElement("div");
+        wrap.className = "item" + (hasImg ? " has-image" : "");
+
+        // Inner waves
+        const waves = document.createElement("div");
+        waves.className = "wave-container";
+        waves.innerHTML = '<div class="wave"></div><div class="wave"></div><div class="wave"></div>';
+        wrap.appendChild(waves);
+
+        // Content row
+        const row = document.createElement("div");
+        row.className = "item-content";
+        row.innerHTML = `
+          <div class="col name">${idx+1}. ${item.name || "-"}</div>
+          <div class="col price">₹${Number(item.price||0)}</div>
+          <div class="col qty">Qty: ${Number(item.quantity||0)}</div>
+        `;
+        wrap.appendChild(row);
+
+        // Hover preview (only if image exists)
+        if(hasImg){
+          const prev = document.createElement("div");
+          prev.className = "img-preview";
+          prev.innerHTML = `<img src="${item.image} " alt="Item Image">`;
+          wrap.appendChild(prev);
+        }
+
+        list.appendChild(wrap);
+      });
+    }
+
+    // Search
+    document.getElementById("searchInput").addEventListener("input", (e)=>{
+      renderItemsInfo(e.target.value);
+    });
+
+    // Initial render
+    renderItemsInfo();
+  </script>
+</body>
+</html>
